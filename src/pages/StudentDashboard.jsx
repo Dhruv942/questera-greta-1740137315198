@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import { FiCheck, FiAward } from 'react-icons/fi';
 import { useCourseContext } from '../context/CourseContext';
 
 const StudentDashboard = () => {
@@ -11,6 +12,13 @@ const StudentDashboard = () => {
     dispatch({
       type: 'UPDATE_PROGRESS',
       payload: { courseId, progress }
+    });
+  };
+
+  const handleMarkCompleted = (courseId) => {
+    dispatch({
+      type: 'MARK_COMPLETED',
+      payload: courseId
     });
   };
 
@@ -34,11 +42,18 @@ const StudentDashboard = () => {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-lg shadow-md overflow-hidden"
             >
-              <img
-                src={course.thumbnail}
-                alt={course.name}
-                className="w-full h-48 object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={course.thumbnail}
+                  alt={course.name}
+                  className="w-full h-48 object-cover"
+                />
+                {course.completed && (
+                  <div className="absolute top-4 right-4 bg-green-500 text-white p-2 rounded-full">
+                    <FiAward size={20} />
+                  </div>
+                )}
+              </div>
               <div className="p-4">
                 <h3 className="text-xl font-semibold text-gray-800">{course.name}</h3>
                 <p className="text-gray-600 mt-2">Instructor: {course.instructor}</p>
@@ -47,6 +62,11 @@ const StudentDashboard = () => {
                   <p className="text-sm text-gray-500">
                     Enrolled: {format(new Date(course.enrollmentDate), 'MMM dd, yyyy')}
                   </p>
+                  {course.completed && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Completed: {format(new Date(course.completionDate), 'MMM dd, yyyy')}
+                    </p>
+                  )}
                   
                   <div className="mt-4">
                     <div className="flex justify-between items-center mb-2">
@@ -55,23 +75,37 @@ const StudentDashboard = () => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div
-                        className="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+                        className={`h-2.5 rounded-full transition-all duration-300 ${
+                          course.completed ? 'bg-green-500' : 'bg-blue-500'
+                        }`}
                         style={{ width: `${course.progress}%` }}
                       ></div>
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <label className="text-sm text-gray-600">Update Progress:</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={course.progress}
-                      onChange={(e) => handleUpdateProgress(course.id, parseInt(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
+                  {!course.completed && (
+                    <>
+                      <div className="mt-4">
+                        <label className="text-sm text-gray-600">Update Progress:</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={course.progress}
+                          onChange={(e) => handleUpdateProgress(course.id, parseInt(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+                      
+                      <button
+                        onClick={() => handleMarkCompleted(course.id)}
+                        className="mt-4 w-full flex items-center justify-center gap-2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
+                      >
+                        <FiCheck />
+                        Mark as Completed
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

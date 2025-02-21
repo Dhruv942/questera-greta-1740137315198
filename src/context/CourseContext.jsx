@@ -27,6 +27,15 @@ function courseReducer(state, action) {
             : course
         )
       };
+    case 'MARK_COMPLETED':
+      return {
+        ...state,
+        enrolledCourses: state.enrolledCourses.map(course =>
+          course.id === action.payload
+            ? { ...course, progress: 100, completed: true, completionDate: new Date() }
+            : course
+        )
+      };
     default:
       return state;
   }
